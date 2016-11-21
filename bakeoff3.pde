@@ -129,6 +129,9 @@ void draw() {
   if (finishTime != 0) {
     fill(255);
     textAlign(CENTER);
+    fill(255);
+    stroke(0);
+    rect(board.x, board.y, board.w, board.h);
     text("Finished", 280, 150);
     text("WPM: " + wpm, 200, 170);
     text("WPM with penalty: " + wpmWithError, 200, 190);
@@ -187,6 +190,7 @@ boolean buttonActive = false;
 
 float startMX, startMY;
 boolean swipeActive = false;
+boolean scrollActive = false;
 
 void mousePressed() {
   // Time is about to start -- as long as they click outside the keyboard to start.
@@ -208,15 +212,10 @@ void mousePressed() {
       if (!buttonActive) {
         if (didMouseClick(board.top.x, board.top.y, board.top.w, board.top.h)) {
           if (didMouseClick(board.top.sug.x, board.top.sug.y, board.top.sug.w, board.top.sug.h)) {
-            // Click some suggestions!
-            
-            for (SuggestTag t : board.top.sug.tags) {
-              if (didMouseClick(board.top.sug.x - board.top.sug.w / 2 + t.x + t.widthEst / 2, t.y, t.widthEst, t.h)) {
-                // Make sure this suggestion makes it into the input and add a space
-                println("Clicked suggestion: " + t.suggestion);
-                break;
-              }
-            }
+            // See if it's a click or a drag
+            startMX = mouseX;
+            startMY = mouseY;
+            scrollActive = true;
             
           } else if (didMouseClick(board.top.sdb.x, board.top.sdb.y, board.top.sdb.w, board.top.sdb.h)) {
             // Mark if they're doing a left to right or right to left swipe
@@ -262,12 +261,27 @@ void mouseReleased() {
       // Right to left 
       // delete
       board.top.sdb.deleteChar();
-    } else if (startMX + 20 <= mouseX) {
+    } else if (startMX - 5 <= mouseX && mouseX <= startMX + 5) {
       // Left to right
       // space
       board.top.sdb.insertSpace();
     }
     swipeActive = false;
+  } else if (scrollActive) { 
+      if (startMX - 5 <= mouseX  && mouseX <= startMX + 5) {
+        // probably a click
+        for (SuggestTag t : board.top.sug.tags) {
+          if (didMouseClick(board.top.sug.x - board.top.sug.w / 2 + t.x + t.widthEst / 2, t.y, t.widthEst, t.h)) {
+            // Make sure this suggestion makes it into the input and add a space
+            println("Clicked suggestion: " + t.suggestion);
+            // Continue here
+            break;
+          }
+        }
+      }
+      
+      scrollActive = false;
+      
   }
   
   board.top.sug.updateSuggestions();
@@ -279,6 +293,26 @@ void mouseReleased() {
 void mouseDragged() {
   if (!didMouseClick(board.x, board.y, board.w, board.h)) {
     return; 
+  }
+  
+  if (board.x - board.w / 2 > mouseX || mouseX > board.x + board.w / 2 || board.y - board.h / 2 > mouseY || mouseY > board.y + board.h / 2) {
+    return; 
+  }
+  
+  float aggWidth = 0;
+  for (SuggestTag t : board.top.sug.tags) {
+    aggWidth += t.widthEst;
+  }
+  
+  aggWidth = Math.max(board.w, aggWidth); 
+  
+  if (!buttonActive && scrollActive) {
+    //println(board.top.sug.x);
+    if (aggWidth > board.w) {
+      board.top.sug.x = constrain(board.top.sug.x + mouseX - pmouseX,
+                                board.top.x + (board.top.w - aggWidth),
+                                board.top.x);
+    }
   }
   
 } // MOUSEDRAGGED
@@ -467,6 +501,11 @@ class Keyboard {
     for (Button b : keys) {
       b.display(); 
     }
+    
+    noFill();
+    stroke(0);
+    strokeWeight(2);
+    rect(x, y, w, h);
   }
 } // KEYBOARD
 
