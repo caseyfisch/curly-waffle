@@ -7,9 +7,6 @@ import java.util.Map;
 import java.util.Set;
 import java.util.TreeSet;
 
-import android.view.GestureDetector;
-import android.view.MotionEvent;
-import android.content.Context;
 
 int boardWidth  = 207; // 1" on LG phone LG
 int boardHeight = 207; // 1" on LG phone
@@ -55,7 +52,6 @@ Map<String, Long> wordCounts;
 SetTrie trie; 
 List<String> smallSuggestions;
 
-GestureDetector gestureDetector;
 
 void setup() {
   fullScreen();
@@ -100,24 +96,8 @@ void setup() {
   inputString = new StringBuilder();
   currentWord = new StringBuilder();
   
-  gestureDetector = new GestureDetector((Context)getActivity(), new GestureListener());
 } // SETUP
 
-public boolean onTouchEvent(MotionEvent e) {
-  return gestureDetector.onTouchEvent(e);
-}
-
-private class GestureListener extends GestureDetector.SimpleOnGestureListener {
-  public boolean onDoubleTap(MotionEvent e) {
-    board.top.sdb.deleteChar();
-    return true;
-  }
-  
-  public boolean onDown(MotionEvent e) {
-    board.top.sdb.insertSpace();
-    return true;
-  }
-}
 
 void draw() {
   background(65);
@@ -252,21 +232,20 @@ void mouseReleased() {
     buttonActive = false;
     activeButtonId = -1;
     
-  } 
-  //else if (swipeActive) {
-  //  if (mouseX + 20 <= startMX) {
-  //    // Right to left 
-  //    // delete
-  //    board.top.sdb.deleteChar();
-  //  } else if (startMX + 20 <= mouseX) {
-  //    // Left to right
-  //    // space
-  //    board.top.sdb.insertSpace();
-  //  }
-  //  swipeActive = false;
-  //}
+  } else if (swipeActive) {
+    if (mouseX + 20 <= startMX) {
+      // Right to left 
+      // delete
+      board.top.sdb.deleteChar();
+    } else if (startMX + 20 <= mouseX) {
+      // Left to right
+      // space
+      board.top.sdb.insertSpace();
+    }
+    swipeActive = false;
+  }
   
-  
+  board.top.sug.updateSuggestions();
   currentTyped = inputString.toString();
   
   
@@ -482,6 +461,7 @@ class Topbar {
 
     sdb = new SpaceDelbar(x, y - h / 2 + h / 4, w, h / 2);
     sug = new Suggestions(x, y + h / 2 - h / 4, w, h / 2);
+    sug.updateSuggestions();
   }
   
   void display() {
@@ -511,8 +491,9 @@ class Suggestions {
   void updateSuggestions() {
     tags = new ArrayList<SuggestTag>();
     
+    int i = -1;
     for (String w : smallSuggestions) {
-       tags.add(new SuggestTag(w, 0, 0, 0)); 
+       tags.add(new SuggestTag(w, x + i * 50 , y, h)); 
     }
   }
   
@@ -521,6 +502,10 @@ class Suggestions {
     stroke(0);
     strokeWeight(1);
     rect(x, y, w, h);
+    
+    for (SuggestTag t : tags ) {
+      t.display(); 
+    }
     
   }
 } // SUGGESTIONS
@@ -537,6 +522,13 @@ class SuggestTag {
     h = inH;
     
     // TODO here! :)
+  }
+  
+  void display() {
+    noFill();
+    rect(x, y, widthEst, h);
+    fill(0);
+    text(suggestion, x, y);
   }
 }
 
