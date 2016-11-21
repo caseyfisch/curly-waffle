@@ -88,6 +88,8 @@ void setup() {
     }
   }
   
+  smallSuggestions = new ArrayList<String>();
+  
   // Create keyboard
   board = new Keyboard(width / 2, height / 2, boardWidth, boardHeight);
   board.setUpKeys();
@@ -95,6 +97,7 @@ void setup() {
   // Initiliaze string builders
   inputString = new StringBuilder();
   currentWord = new StringBuilder();
+  
   
 } // SETUP
 
@@ -155,6 +158,7 @@ void draw() {
       }
       text("Suggestions:  " + smallSuggestions.toString(), 70, 190); 
       println("================================================================================================");
+      board.top.sug.updateSuggestions();
     }
     
     fill(123, 123, 250);
@@ -485,15 +489,26 @@ class Suggestions {
     y = inY;
     w = inW;
     h = inH;
-    
+    tags = new ArrayList<SuggestTag>();
   }
   
   void updateSuggestions() {
     tags = new ArrayList<SuggestTag>();
     
     int i = -1;
+    float firstX = 0;
+    float nextX = 0;
     for (String w : smallSuggestions) {
-       tags.add(new SuggestTag(w, x + i * 50 , y, h)); 
+      if (i == -1) {
+        SuggestTag t = new SuggestTag(w, firstX, y, h);
+        tags.add(t);
+        nextX = t.x + t.widthEst;
+      } else {
+        SuggestTag t = new SuggestTag(w, nextX, y, h);
+        tags.add(t); 
+        nextX = t.x + t.widthEst;
+      }
+      i++;
     }
   }
   
@@ -516,7 +531,7 @@ class SuggestTag {
   float x, y, h;
   SuggestTag(String word, float inX, float inY, float inH) {
     suggestion = word;
-    widthEst = word.length() * 15;
+    widthEst = word.length() * 10;
     x = inX;
     y = inY;
     h = inH;
@@ -525,8 +540,8 @@ class SuggestTag {
   }
   
   void display() {
-    noFill();
-    rect(x, y, widthEst, h);
+    fill(255);
+    rect(board.top.sug.x - board.top.sug.w / 2 + x + widthEst / 2, y, widthEst, h);
     fill(0);
     text(suggestion, x, y);
   }
