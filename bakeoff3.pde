@@ -7,6 +7,10 @@ import java.util.Map;
 import java.util.Set;
 import java.util.TreeSet;
 
+import android.view.GestureDetector;
+import android.view.MotionEvent;
+import android.content.Context;
+
 int boardWidth  = 207; // 1" on LG phone LG
 int boardHeight = 207; // 1" on LG phone
 
@@ -51,8 +55,7 @@ Map<String, Long> wordCounts;
 SetTrie trie; 
 List<String> smallSuggestions;
 
-// Scaling stuff
-float zoom = 1;
+GestureDetector gestureDetector;
 
 void setup() {
   fullScreen();
@@ -96,7 +99,25 @@ void setup() {
   // Initiliaze string builders
   inputString = new StringBuilder();
   currentWord = new StringBuilder();
+  
+  gestureDetector = new GestureDetector((Context)getActivity(), new GestureListener());
 } // SETUP
+
+public boolean onTouchEvent(MotionEvent e) {
+  return gestureDetector.onTouchEvent(e);
+}
+
+private class GestureListener extends GestureDetector.SimpleOnGestureListener {
+  public boolean onDoubleTap(MotionEvent e) {
+    board.top.sdb.deleteChar();
+    return true;
+  }
+  
+  public boolean onDown(MotionEvent e) {
+    board.top.sdb.insertSpace();
+    return true;
+  }
+}
 
 void draw() {
   background(65);
