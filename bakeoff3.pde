@@ -39,6 +39,8 @@ float wpm          = 0;
 float wpmWithError = 0;
 
 PFont outsideText;
+boolean showCursor = false;
+int frameCnt = 0;
 
 // Variables added by me
 StringBuilder inputString;  // Keeps track of full input string (this string submitted)
@@ -105,6 +107,16 @@ void setup() {
 void draw() {
   background(65);
   board.display();
+  
+  frameCnt++;
+  if (frameCnt > 32) {
+    frameCnt = 0; 
+  }
+  if (frameCnt >= 16) {
+    showCursor = true; 
+  } else {
+    showCursor = false;
+  }
 
   textFont(outsideText);
   
@@ -152,15 +164,11 @@ void draw() {
         smallSuggestions.add(suggestions.get(i));
       }
       
-      // Print for now, can remove later
-      for (String w : smallSuggestions) {
-        println(w); 
-      }
       text("Suggestions:  " + smallSuggestions.toString(), 70, 190); 
-      println("================================================================================================");
-      board.top.sug.updateSuggestions();
     }
-    
+
+    board.top.sug.updateSuggestions();
+
     fill(123, 123, 250);
     rect(800, 00, 200, 200); //draw next button
     fill(255);
@@ -196,6 +204,14 @@ void mousePressed() {
         if (didMouseClick(board.top.x, board.top.y, board.top.w, board.top.h)) {
           if (didMouseClick(board.top.sug.x, board.top.sug.y, board.top.sug.w, board.top.sug.h)) {
             // Click some suggestions!
+            
+            for (SuggestTag t : board.top.sug.tags) {
+              if (didMouseClick(board.top.sug.x - board.top.sug.w / 2 + t.x + t.widthEst / 2, t.y, t.widthEst, t.h)) {
+                // Make sure this suggestion makes it into the input and add a space
+                println("Clicked suggestion: " + t.suggestion);
+                break;
+              }
+            }
             
           } else if (didMouseClick(board.top.sdb.x, board.top.sdb.y, board.top.sdb.w, board.top.sdb.h)) {
             // Mark if they're doing a left to right or right to left swipe
@@ -330,6 +346,7 @@ void nextTrial() {
   
   inputString = new StringBuilder();
   currentWord = new StringBuilder();
+  smallSuggestions = new ArrayList<String>();
   
   currentPhrase = phrases[currTrialNum]; // load the next phrase!
 } // NEXT TRIAL
@@ -469,6 +486,7 @@ class Topbar {
   }
   
   void display() {
+    sug.updateSuggestions();
     sug.display();
     sdb.display();
   }
@@ -531,19 +549,19 @@ class SuggestTag {
   float x, y, h;
   SuggestTag(String word, float inX, float inY, float inH) {
     suggestion = word;
-    widthEst = word.length() * 10;
+    widthEst = max(word.length() * 10, board.top.sug.w / 3);
     x = inX;
     y = inY;
     h = inH;
-    
-    // TODO here! :)
   }
   
   void display() {
     fill(255);
     rect(board.top.sug.x - board.top.sug.w / 2 + x + widthEst / 2, y, widthEst, h);
     fill(0);
-    text(suggestion, x, y);
+    textAlign(CENTER);
+    text(suggestion, board.top.sug.x - board.top.sug.w / 2 + x + widthEst / 2, y + h / 2, widthEst, h);
+    textAlign(CENTER);
   }
 }
 
@@ -567,11 +585,20 @@ class SpaceDelbar {
     strokeWeight(1);
     fill(255);
     rect(x, y, w, h);
+    
+    fill(0);
+    textAlign(RIGHT);
+    text(inputString.toString(), x, y);
+    if (showCursor){
+      text("|", x + 4, y);
+    }
+    textAlign(CENTER);
   }
   
   void insertSpace() {
     inputString.append(" ");
     currentWord = new StringBuilder();
+    board.top.sug.updateSuggestions();
   }
   
   void deleteChar() {
@@ -638,6 +665,15 @@ class Button {
     //strokeWeight(1);
     noStroke();
     noFill();
+    
+    
+    
+    if (buttonActive && activeButtonId == this.id) {
+       for (Subbutton sb : neighbors) {
+         sb.display(); 
+       }
+       fill(200);
+    }
     ellipse(x, y, h, h);
     fill(0);
     textFont(keyText);
@@ -645,12 +681,6 @@ class Button {
     String temp = Character.toString(c);
 
     text(temp.toUpperCase(), x, y);
-    
-    if (buttonActive && activeButtonId == this.id) {
-       for (Subbutton sb : neighbors) {
-         sb.display(); 
-       }
-    }
   }
 } // BUTTON
 
