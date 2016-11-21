@@ -174,6 +174,88 @@ boolean didMouseClick(float x, float y, float w, float h) {
   return (x - w / 2 <= mouseX && mouseX <= x + w / 2 && y - h / 2 <= mouseY && mouseY <= y + h / 2);
 } // DIDMOUSECLICK
 
+void nextTrial() {
+  if (currTrialNum >= totalTrialNum) { //check to see if experiment is done
+    userDone = true;
+    return; //if so, just return
+  }
+
+  if (startTime != 0 && finishTime == 0) { //in the middle of trials
+    System.out.println("========================================================================");
+    System.out.println("Phrase " + (currTrialNum+1) + " of " + totalTrialNum); //output
+    System.out.println("Target phrase: " + currentPhrase); //output
+    System.out.println("Phrase length: " + currentPhrase.length()); //output
+    System.out.println("User typed: " + currentTyped); //output
+    System.out.println("User typed length: " + currentTyped.length()); //output
+    System.out.println("Number of errors: " + computeLevenshteinDistance(currentTyped.trim(), currentPhrase.trim())); //trim whitespace and compute errors
+    System.out.println("Time taken on this trial: " + ((millis() - lastTime) / 1000) + " seconds"); //output
+    System.out.println("Time taken since beginning: " + ((millis() - startTime) / 1000) + " seconds"); //output
+    System.out.println("========================================================================");
+    lettersExpectedTotal+=currentPhrase.length();
+    lettersEnteredTotal+=currentTyped.length();
+    errorsTotal+=computeLevenshteinDistance(currentTyped.trim(), currentPhrase.trim());
+  }
+
+  // probably shouldn't need to modify any of this output / penalty code.
+  if (currTrialNum == totalTrialNum - 1) { //check to see if experiment just finished
+    finishTime = millis();
+    
+    System.out.println("========================================================================");
+    System.out.println("Trials complete!"); //output
+    System.out.println("Total time taken: " + ((finishTime - startTime) / 1000) + " seconds"); //output
+    System.out.println("Total letters entered: " + lettersEnteredTotal); //output
+    System.out.println("Total letters expected: " + lettersExpectedTotal); //output
+    System.out.println("Total errors entered: " + errorsTotal); //output
+    
+    wpm = (lettersEnteredTotal/5.0f)/((finishTime - startTime)/60000f); //FYI - 60K is number of milliseconds in minute
+    System.out.println("Raw WPM: " + wpm); //output
+    
+    float freebieErrors = lettersExpectedTotal*.05; // no penalty if errors are under 5% of chars
+    System.out.println("Freebie errors: " + freebieErrors); //output
+    float penalty = max(errorsTotal-freebieErrors,0) * .5f;
+    
+    System.out.println("Penalty: " + penalty);
+    System.out.println("WPM w/ penalty: " + (wpm-penalty)); //yes, minus, becuase higher WPM is better
+    wpmWithError = wpm - penalty;
+    System.out.println("========================================================================");
+    
+    currTrialNum++; //increment by one so this mesage only appears once when all trials are done
+    return;
+  }
+
+  if (startTime == 0) { // first trial starting now
+    System.out.println("Trials beginning! Starting timer..."); //output we're done
+    startTime = millis(); // start the timer!
+  } else {
+    currTrialNum++; // increment trial number
+  }
+
+  lastTime = millis(); //record the time of when this trial ended
+  currentTyped = ""; //clear what is currently typed preparing for next trial
+  
+  inputString = new StringBuilder();
+  currentWord = new StringBuilder();
+  
+  currentPhrase = phrases[currTrialNum]; // load the next phrase!
+} // NEXT TRIAL
+
+//=========SHOULD NOT NEED TO TOUCH THIS METHOD AT ALL!==============
+int computeLevenshteinDistance(String phrase1, String phrase2) //this computers error between two strings
+{
+  int[][] distance = new int[phrase1.length() + 1][phrase2.length() + 1];
+
+  for (int i = 0; i <= phrase1.length(); i++)
+    distance[i][0] = i;
+  for (int j = 1; j <= phrase2.length(); j++)
+    distance[0][j] = j;
+
+  for (int i = 1; i <= phrase1.length(); i++)
+    for (int j = 1; j <= phrase2.length(); j++)
+      distance[i][j] = min(min(distance[i - 1][j] + 1, distance[i][j - 1] + 1), distance[i - 1][j - 1] + ((phrase1.charAt(i - 1) == phrase2.charAt(j - 1)) ? 0 : 1));
+
+  return distance[phrase1.length()][phrase2.length()];
+} // cOMPUTE DISTANCE
+
 /**
  * ==================================================================================
  *   WORD COUNT COMPARATOR IMPL
