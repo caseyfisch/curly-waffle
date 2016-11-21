@@ -6,6 +6,7 @@ import java.util.List;
 import java.util.Map;
 import java.util.Set;
 import java.util.TreeSet;
+import java.util.Stack;
 
 
 int boardWidth  = 207; // 1" on LG phone LG
@@ -31,6 +32,8 @@ float errorsTotal          = 0;  // Num errors running total
 
 String currentPhrase = "";  // The current target phrase
 String currentTyped  = "";  // What the user has typed so far
+
+Stack<String> prefixes;
 
 boolean userDone = false;
 boolean userStarted = false;
@@ -100,6 +103,8 @@ void setup() {
   // Initiliaze string builders
   inputString = new StringBuilder();
   currentWord = new StringBuilder();
+  
+  prefixes = new Stack<String>();
   
   
 } // SETUP
