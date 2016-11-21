@@ -231,18 +231,19 @@ void mouseReleased() {
     buttonActive = false;
     activeButtonId = -1;
     
-  } else if (swipeActive) {
-    if (mouseX + 20 <= startMX) {
-      // Right to left 
-      // delete
-      board.top.sdb.deleteChar();
-    } else if (startMX + 20 <= mouseX) {
-      // Left to right
-      // space
-      board.top.sdb.insertSpace();
-    }
-    swipeActive = false;
-  }
+  } 
+  //else if (swipeActive) {
+  //  if (mouseX + 20 <= startMX) {
+  //    // Right to left 
+  //    // delete
+  //    board.top.sdb.deleteChar();
+  //  } else if (startMX + 20 <= mouseX) {
+  //    // Left to right
+  //    // space
+  //    board.top.sdb.insertSpace();
+  //  }
+  //  swipeActive = false;
+  //}
   
   
   currentTyped = inputString.toString();
@@ -408,7 +409,7 @@ class Keyboard {
       nI++;
     }
     
-    String row3 = "zxcvbnm_-"; // -4 to 4
+    String row3 = "zxcvbnm"; // -3 to 3
     i = row3.length() * -1 / 2;
     for (char c : row3.toCharArray()) {
       Button b = new Button(nI, c, 
@@ -593,14 +594,7 @@ class Button {
                                   board.top.y, board.w / 3, board.w / 3));
       neighbors.add(new Subbutton(id, board.keys.get(id).c, board.x + board.w / 2 - board.w / 3, 
                                   board.top.y, board.w / 3, board.w / 3));
-    } else if (id == 26) {
-      neighbors.add(new Subbutton(id, board.keys.get(id - 1).c,     board.x - board.w / 2 + board.w / 3, 
-                                  board.top.y, board.w / 3, board.w / 3));
-      neighbors.add(new Subbutton(id, board.keys.get(id).c, board.x + board.w / 2 - board.w / 3, 
-                                  board.top.y, board.w / 3, board.w / 3));
-    } else if (id == 27) {
-      
-    }else {
+    } else {
       neighbors.add(new Subbutton(id, board.keys.get(id - 1).c,   board.x - board.w / 2 + board.w / 6, 
                                   board.top.y, board.w / 3, board.w / 3));
       neighbors.add(new Subbutton(id, board.keys.get(id).c,     board.x , 
@@ -621,9 +615,7 @@ class Button {
     textFont(keyText);
     textAlign(CENTER);
     String temp = Character.toString(c);
-    if (c == '-') {
-      temp = "<-";
-    }
+
     text(temp.toUpperCase(), x, y);
     
     if (buttonActive && activeButtonId == this.id) {
@@ -664,7 +656,9 @@ class Subbutton {
     ellipse(x, y, w, h);
     fill(0);
     textFont(big);
-    text(Character.toString(c).toUpperCase(), x, y);
+    String temp = Character.toString(c);
+
+    text(temp.toUpperCase(), x, y);
   }
 } // SUBBUTTON
 
