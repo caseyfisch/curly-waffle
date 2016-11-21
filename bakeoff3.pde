@@ -216,6 +216,7 @@ void mouseReleased() {
     for (Subbutton sb : b.neighbors) {
       if (didMouseClick(sb.x, sb.y, sb.w, sb.h)) {
         inputString.append(sb.c);
+        currentWord.append(sb.c);
         break; 
       }
     } 
@@ -228,13 +229,19 @@ void mouseReleased() {
       // delete
       if (inputString.length() > 0) {
         inputString.deleteCharAt(inputString.length() - 1);
+        if (currentWord.length() > 0) {
+          currentWord.deleteCharAt(currentWord.length() - 1); 
+        }
       } 
     } else if (startMX + 20 <= mouseX) {
       // Left to right
       // space
       inputString.append(" ");
+      currentWord = new StringBuilder();
     }
+    swipeActive = false;
   }
+  
   
   currentTyped = inputString.toString();
   
@@ -560,10 +567,12 @@ class Button {
   }
   
   void display() {
-    fill(255);
-    stroke(0);
-    strokeWeight(1);
-    rect(x, y, w, h);
+
+    //stroke(0);
+    //strokeWeight(1);
+    noStroke();
+    noFill();
+    ellipse(x, y, h, h);
     fill(0);
     textAlign(CENTER);
     text(Character.toString(c).toUpperCase(), x, y);
