@@ -162,6 +162,9 @@ void draw() {
 int activeButtonId = -1;
 boolean buttonActive = false;
 
+float startMX, startMY;
+boolean swipeActive = false;
+
 void mousePressed() {
   // Time is about to start -- as long as they click outside the keyboard to start.
   if (startTime == 0 && !didMouseClick(board.x, board.y, board.w, board.h)) {
@@ -182,9 +185,13 @@ void mousePressed() {
       if (!buttonActive) {
         if (didMouseClick(board.top.x, board.top.y, board.top.w, board.top.h)) {
           if (didMouseClick(board.top.sug.x, board.top.sug.y, board.top.sug.w, board.top.sug.h)) {
-            // 
-          } else if (didMouseClick(board.top.sdb.x, board.top.sdb.y, board.top.sdb.w, board.top.sdb.h)) {
+            // Click some suggestions!
             
+          } else if (didMouseClick(board.top.sdb.x, board.top.sdb.y, board.top.sdb.w, board.top.sdb.h)) {
+            // Mark if they're doing a left to right or right to left swipe
+            startMX = mouseX;
+            startMY = mouseY;
+            swipeActive = true;
           }
         }
       }
@@ -211,10 +218,22 @@ void mouseReleased() {
         inputString.append(sb.c);
         break; 
       }
-    }
+    } 
     buttonActive = false;
     activeButtonId = -1;
     
+  } else if (swipeActive) {
+    if (mouseX + 20 <= startMX) {
+      // Right to left 
+      // delete
+      if (inputString.length() > 0) {
+        inputString.deleteCharAt(inputString.length() - 1);
+      } 
+    } else if (startMX + 20 <= mouseX) {
+      // Left to right
+      // space
+      inputString.append(" ");
+    }
   }
   
   currentTyped = inputString.toString();
