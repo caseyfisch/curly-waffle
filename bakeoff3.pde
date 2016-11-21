@@ -347,6 +347,8 @@ void nextTrial() {
   inputString = new StringBuilder();
   currentWord = new StringBuilder();
   smallSuggestions = new ArrayList<String>();
+  board.top.sug.updateSuggestions();
+  board.top.sug.display();
   
   currentPhrase = phrases[currTrialNum]; // load the next phrase!
 } // NEXT TRIAL
