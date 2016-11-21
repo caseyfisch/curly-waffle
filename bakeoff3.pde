@@ -58,6 +58,7 @@ List<String> smallSuggestions;
 void setup() {
   fullScreen();
   outsideText = createFont("Arial", 16);
+  frameRate(60);
   rectMode(CENTER);
   
   // Load dictionary and phrases
@@ -114,10 +115,10 @@ void draw() {
   rect(width - (width - (width / 2 + boardWidth / 2)) / 2, height / 2, width / 2 - boardWidth / 2, boardWidth);
   
   frameCnt++;
-  if (frameCnt > 20) {
+  if (frameCnt > 30) {
     frameCnt = 0; 
   }
-  if (frameCnt >= 10) {
+  if (frameCnt >= 15) {
     showCursor = true; 
   } else {
     showCursor = false;
@@ -257,14 +258,16 @@ void mouseReleased() {
     activeButtonId = -1;
     
   } else if (swipeActive) {
-    if (mouseX + 20 <= startMX) {
-      // Right to left 
-      // delete
-      board.top.sdb.deleteChar();
-    } else if (startMX - 5 <= mouseX && mouseX <= startMX + 5) {
-      // Left to right
-      // space
-      board.top.sdb.insertSpace();
+    if (startMY - 20 <= mouseY && mouseY <= startMY + 20) {
+      if (mouseX + 20 <= startMX) {
+        // Right to left 
+        // delete
+        board.top.sdb.deleteChar();
+      } else if (startMX + 20 <= mouseX) { // (startMX - 5 <= mouseX && mouseX <= startMX + 5) {
+        // Left to right
+        // space
+        board.top.sdb.insertSpace();
+      }
     }
     swipeActive = false;
   } else if (scrollActive) { 
@@ -275,6 +278,9 @@ void mouseReleased() {
             // Make sure this suggestion makes it into the input and add a space
             println("Clicked suggestion: " + t.suggestion);
             // Continue here
+            println(t.suggestion.substring(t.suggestion.indexOf(currentWord.toString())));
+            inputString.append(t.suggestion.substring(t.suggestion.indexOf(currentWord.toString()) + currentWord.length()));
+            board.top.sdb.insertSpace();
             break;
           }
         }
@@ -299,14 +305,18 @@ void mouseDragged() {
     return; 
   }
   
-  float aggWidth = 0;
-  for (SuggestTag t : board.top.sug.tags) {
-    aggWidth += t.widthEst;
-  }
-  
-  aggWidth = Math.max(board.w, aggWidth); 
-  
-  if (!buttonActive && scrollActive) {
+  if (!buttonActive && swipeActive) {
+    fill(0, 255, 255);
+    noStroke();
+    ellipse(mouseX, mouseY, 15, 15);
+    
+  } else if (!buttonActive && scrollActive) {
+    float aggWidth = 0;
+    for (SuggestTag t : board.top.sug.tags) {
+      aggWidth += t.widthEst;
+    }
+    
+    aggWidth = Math.max(board.w, aggWidth); 
     //println(board.top.sug.x);
     if (aggWidth > board.w) {
       board.top.sug.x = constrain(board.top.sug.x + mouseX - pmouseX,
@@ -757,8 +767,13 @@ class Subbutton {
   
   void display() {
     noStroke();
-    fill(200);
+    if (didMouseClick(x, y, w, h)) {
+      fill(127);
+    } else {
+      fill(200);
+    }
     ellipse(x, y, w, h);
+    
     fill(0);
     textFont(big);
     String temp = Character.toString(c);
