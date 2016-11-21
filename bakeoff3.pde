@@ -88,7 +88,7 @@ void setup() {
   // Initiliaze string builders
   inputString = new StringBuilder();
   currentWord = new StringBuilder();
-}
+} // SETUP
 
 void draw() {
   background(65);
@@ -153,7 +153,26 @@ void draw() {
     text("NEXT > ", 3 * width / 4, 50); //draw next label
     rectMode(CENTER);
   }
-}
+} // DRAW
+
+void mousePressed() {
+  
+} // MOUSEPRESSED
+
+void mouseReleased() {
+  
+} // MOUSERELEASED
+
+void mouseDragged() {
+  
+} // MOUSEDRAGGED
+
+
+
+boolean didMouseClick(float x, float y, float w, float h) {
+  // Based on rectMode(CENTER)
+  return (x - w / 2 <= mouseX && mouseX <= x + w / 2 && y - h / 2 <= mouseY && mouseY <= y + h / 2);
+} // DIDMOUSECLICK
 
 /**
  * ==================================================================================
@@ -168,7 +187,7 @@ Comparator<String> FREQUENCY = new Comparator<String>() {
 
     return -1 * Long.compare(s1_count, s2_count);
   }
-};
+}; // FREQUENCY
 
 /**
  * ==================================================================================
@@ -192,7 +211,7 @@ class Keyboard {
     strokeWeight(2);
     rect(x, y, w, h);
   }
-}
+} // KEYBOARD
 
 /**
  * ==================================================================================
@@ -214,7 +233,7 @@ class Button {
   void display() {
     
   }
-}
+} // BUTTON
 
 /**
  * ==================================================================================
@@ -256,4 +275,4 @@ public class SetTrie {
     }
     return completions;
   }
-}
+} // TRIE
