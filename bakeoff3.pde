@@ -47,6 +47,7 @@ Keyboard board;
 // Dictionary stuff
 Map<String, Long> wordCounts;
 SetTrie trie; 
+List<String> smallSuggestions;
 
 // Scaling stuff
 float zoom = 1;
@@ -137,7 +138,7 @@ void draw() {
       Collections.sort(suggestions, FREQUENCY);
       
       // Take the first three
-      List<String> smallSuggestions = new ArrayList<String>();
+      smallSuggestions = new ArrayList<String>();
       for (int i = 0; i < 3; i++) {
         if (i > suggestions.size() - 1) break;
         smallSuggestions.add(suggestions.get(i));
@@ -468,11 +469,22 @@ class Topbar {
  
 class Suggestions {
   float x, y, w, h;
+  ArrayList<SuggestTag> tags;
+  
   Suggestions (float inX, float inY, float inW, float inH) {
     x = inX;
     y = inY;
     w = inW;
     h = inH;
+    
+  }
+  
+  void updateSuggestions() {
+    tags = new ArrayList<SuggestTag>();
+    
+    for (String w : smallSuggestions) {
+       tags.add(new SuggestTag(w)); 
+    }
   }
   
   void display() {
@@ -480,8 +492,25 @@ class Suggestions {
     stroke(0);
     strokeWeight(1);
     rect(x, y, w, h);
+    
+    for (SuggestTag t : tags) {
+      
+    }
   }
 } // SUGGESTIONS
+
+class SuggestTag {
+  String suggestion;
+  float widthEst;
+  float x, y, h;
+  SuggestTag(String w, float inX, float inY, float inH) {
+    suggestion = w;
+    widthEst = w.length() * 15;
+    x = inX;
+    y = inY;
+    h = inH;
+  }
+}
 
 /**
  * ==================================================================================
