@@ -219,7 +219,7 @@ void mousePressed() {
       
       if (!buttonActive) {
         if (didMouseClick(board.top.x, board.top.y, board.top.w, board.top.h)) {
-          if (didMouseClick(board.top.sug.x, board.top.sug.y, board.top.sug.w, board.top.sug.h)) {
+          if (didMouseClick(board.top.x, board.top.sug.y, board.top.sug.w, board.top.sug.h)) {
             // See if it's a click or a drag
             startMX = mouseX;
             startMY = mouseY;
@@ -270,24 +270,29 @@ void mouseReleased() {
         // Right to left 
         // delete
         board.top.sdb.deleteChar();
+        board.top.sug.x = board.x;
       } else if (startMX + 20 <= mouseX) { // (startMX - 5 <= mouseX && mouseX <= startMX + 5) {
         // Left to right
         // space
         board.top.sdb.insertSpace();
+        board.top.sug.x = board.x;
+
       }
     }
     swipeActive = false;
   } else if (scrollActive) { 
       if (startMX - 5 <= mouseX  && mouseX <= startMX + 5) {
         // probably a click
+        
         for (SuggestTag t : board.top.sug.tags) {
+          println("MX: " + mouseX);
+          println("T.x: " + (board.top.sug.x - board.top.sug.w / 2 + t.x + t.widthEst / 2));
           if (didMouseClick(board.top.sug.x - board.top.sug.w / 2 + t.x + t.widthEst / 2, t.y, t.widthEst, t.h)) {
             // Make sure this suggestion makes it into the input and add a space
-            println("Clicked suggestion: " + t.suggestion);
-            // Continue here
-            println(t.suggestion.substring(t.suggestion.indexOf(currentWord.toString())));
+
             inputString.append(t.suggestion.substring(t.suggestion.indexOf(currentWord.toString()) + currentWord.length()));
             board.top.sdb.insertSpace();
+            board.top.sug.x = board.x;
             break;
           }
         }
