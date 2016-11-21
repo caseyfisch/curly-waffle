@@ -37,6 +37,8 @@ boolean userStarted = false;
 float wpm          = 0;
 float wpmWithError = 0;
 
+PFont outsideText;
+
 // Variables added by me
 StringBuilder inputString;  // Keeps track of full input string (this string submitted)
 StringBuilder currentWord;  // Keeps track of current word for suggestions
@@ -54,7 +56,7 @@ float zoom = 1;
 
 void setup() {
   fullScreen();
-  textFont(createFont("Arial", 16));
+  outsideText = createFont("Arial", 16);
   rectMode(CENTER);
   
   // Load dictionary and phrases
@@ -99,6 +101,8 @@ void setup() {
 void draw() {
   background(65);
   board.display();
+
+  textFont(outsideText);
   
   // Finish time is non-zero, so game over
   if (finishTime != 0) {
@@ -209,6 +213,9 @@ void mousePressed() {
 
 void mouseReleased() {
   if (!didMouseClick(board.x, board.y, board.w, board.h)) {
+    activeButtonId = -1;
+    buttonActive = false;
+    swipeActive = false;
     return; 
   }
   
@@ -337,7 +344,7 @@ int computeLevenshteinDistance(String phrase1, String phrase2) //this computers 
       distance[i][j] = min(min(distance[i - 1][j] + 1, distance[i][j - 1] + 1), distance[i - 1][j - 1] + ((phrase1.charAt(i - 1) == phrase2.charAt(j - 1)) ? 0 : 1));
 
   return distance[phrase1.length()][phrase2.length()];
-} // cOMPUTE DISTANCE
+} // COMPUTE DISTANCE
 
 /**
  * ==================================================================================
@@ -371,18 +378,18 @@ class Keyboard {
     w = inW;
     h = inH;
     
-    top = new Topbar(x, y - h / 4, w, h / 2);
+    top = new Topbar(x, y - h / 2 + h / 6, w, h / 3);
     keys = new ArrayList<Button>();
     String row1 = "qwertyuiop";
     
     float keyWidth = boardWidth / row1.length();
-    float keyHeight = boardWidth / 6;
+    float keyHeight = 2 * boardHeight / 9;
     
     int i = row1.length() * -1 / 2; // -5 to 4
     int nI = 0;
     for (char c : row1.toCharArray()) {
       Button b = new Button(nI, c, x + (i * keyWidth) + keyWidth / 2, 
-                          y + keyHeight / 2, 
+                          y - h / 2 + h / 3 + keyHeight / 2, 
                           keyWidth, keyHeight);
                           
       nI++;
@@ -394,19 +401,19 @@ class Keyboard {
     i = row2.length() * -1 / 2;
     for (char c : row2.toCharArray()) {
       Button b = new Button(nI, c, x + (i * keyWidth), 
-                          y + keyHeight + keyHeight / 2, 
+                          y - h / 2 + h / 3 + keyHeight + keyHeight / 2, 
                           keyWidth, keyHeight);
       keys.add(b);
       i++;
       nI++;
     }
     
-    String row3 = "zxcvbnm"; // -3 to 3
+    String row3 = "zxcvbnm_-"; // -4 to 4
     i = row3.length() * -1 / 2;
     for (char c : row3.toCharArray()) {
       Button b = new Button(nI, c, 
                           x + (i * keyWidth), 
-                          y + 2 * keyHeight + keyHeight / 2, 
+                          y - h / 2 + h / 3 + 2 * keyHeight + keyHeight / 2, 
                           keyWidth, keyHeight); 
       keys.add(b);
       nI++;
@@ -451,8 +458,8 @@ class Topbar {
     w = inW;
     h = inH;
 
-    sdb = new SpaceDelbar(x, y - h / 2 + h / 3, w, 2 * h / 3);
-    sug = new Suggestions(x, y + h / 2 - h / 6, w, h / 3);
+    sdb = new SpaceDelbar(x, y - h / 2 + h / 4, w, h / 2);
+    sug = new Suggestions(x, y + h / 2 - h / 4, w, h / 2);
   }
   
   void display() {
@@ -483,7 +490,7 @@ class Suggestions {
     tags = new ArrayList<SuggestTag>();
     
     for (String w : smallSuggestions) {
-       tags.add(new SuggestTag(w)); 
+       tags.add(new SuggestTag(w, 0, 0, 0)); 
     }
   }
   
@@ -493,9 +500,6 @@ class Suggestions {
     strokeWeight(1);
     rect(x, y, w, h);
     
-    for (SuggestTag t : tags) {
-      
-    }
   }
 } // SUGGESTIONS
 
@@ -503,12 +507,14 @@ class SuggestTag {
   String suggestion;
   float widthEst;
   float x, y, h;
-  SuggestTag(String w, float inX, float inY, float inH) {
-    suggestion = w;
-    widthEst = w.length() * 15;
+  SuggestTag(String word, float inX, float inY, float inH) {
+    suggestion = word;
+    widthEst = word.length() * 15;
     x = inX;
     y = inY;
     h = inH;
+    
+    // TODO here! :)
   }
 }
 
@@ -561,6 +567,7 @@ class Button {
   int id;
   char c;
   ArrayList<Subbutton> neighbors;
+  PFont keyText;
   
   Button(int id, char c, float inX, float inY, float inW, float inH) {
     x = inX;
@@ -570,6 +577,7 @@ class Button {
     
     this.id = id;
     this.c = c;
+    keyText = createFont("Arial", 16);
   }
   
   void setNeighbors() {
@@ -585,7 +593,14 @@ class Button {
                                   board.top.y, board.w / 3, board.w / 3));
       neighbors.add(new Subbutton(id, board.keys.get(id).c, board.x + board.w / 2 - board.w / 3, 
                                   board.top.y, board.w / 3, board.w / 3));
-    } else {
+    } else if (id == 26) {
+      neighbors.add(new Subbutton(id, board.keys.get(id - 1).c,     board.x - board.w / 2 + board.w / 3, 
+                                  board.top.y, board.w / 3, board.w / 3));
+      neighbors.add(new Subbutton(id, board.keys.get(id).c, board.x + board.w / 2 - board.w / 3, 
+                                  board.top.y, board.w / 3, board.w / 3));
+    } else if (id == 27) {
+      
+    }else {
       neighbors.add(new Subbutton(id, board.keys.get(id - 1).c,   board.x - board.w / 2 + board.w / 6, 
                                   board.top.y, board.w / 3, board.w / 3));
       neighbors.add(new Subbutton(id, board.keys.get(id).c,     board.x , 
@@ -603,8 +618,13 @@ class Button {
     noFill();
     ellipse(x, y, h, h);
     fill(0);
+    textFont(keyText);
     textAlign(CENTER);
-    text(Character.toString(c).toUpperCase(), x, y);
+    String temp = Character.toString(c);
+    if (c == '-') {
+      temp = "<-";
+    }
+    text(temp.toUpperCase(), x, y);
     
     if (buttonActive && activeButtonId == this.id) {
        for (Subbutton sb : neighbors) {
@@ -625,6 +645,7 @@ class Subbutton {
   float x, y, w, h;
   int id;
   char c;
+  PFont big;
   
   Subbutton(int id, char c, float inX, float inY, float inW, float inH) {
     x = inX;
@@ -634,6 +655,7 @@ class Subbutton {
     
     this.id = id;
     this.c = c;
+    big = createFont("Arial", 24);
   }
   
   void display() {
@@ -641,6 +663,7 @@ class Subbutton {
     fill(200);
     ellipse(x, y, w, h);
     fill(0);
+    textFont(big);
     text(Character.toString(c).toUpperCase(), x, y);
   }
 } // SUBBUTTON
