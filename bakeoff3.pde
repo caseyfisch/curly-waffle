@@ -17,7 +17,7 @@ int boardHeight = 207; // 1" on LG phone
 String[] phrases;
 
 // Variables to manage trials
-int totalTrialNum = 4;
+int totalTrialNum = 2;
 int currTrialNum  = 0;
 
 float startTime  = 0;  // Starts when first letter is entered
@@ -106,7 +106,6 @@ void draw() {
     text("Finished", 280, 150);
     text("WPM: " + wpm, 200, 170);
     text("WPM with penalty: " + wpmWithError, 200, 190);
-    println("WPM with error: " + wpmWithError);
     userDone = true;
     return;
   }
@@ -174,10 +173,19 @@ void mousePressed() {
     if (!userDone && userStarted) {
       for (Button b : board.keys) {
         if (didMouseClick(b.x, b.y, b.w, b.h)) {
-          println(b.c);
           activeButtonId = b.id;
           buttonActive = true;
           break;
+        }
+      }
+      
+      if (!buttonActive) {
+        if (didMouseClick(board.top.x, board.top.y, board.top.w, board.top.h)) {
+          if (didMouseClick(board.top.sug.x, board.top.sug.y, board.top.sug.w, board.top.sug.h)) {
+            // 
+          } else if (didMouseClick(board.top.sdb.x, board.top.sdb.y, board.top.sdb.w, board.top.sdb.h)) {
+            
+          }
         }
       }
     }
@@ -197,9 +205,19 @@ void mouseReleased() {
   }
   
   if (buttonActive) {
+    Button b = board.keys.get(activeButtonId);
+    for (Subbutton sb : b.neighbors) {
+      if (didMouseClick(sb.x, sb.y, sb.w, sb.h)) {
+        inputString.append(sb.c);
+        break; 
+      }
+    }
     buttonActive = false;
     activeButtonId = -1;
+    
   }
+  
+  currentTyped = inputString.toString();
   
   
 } // MOUSERELEASED
@@ -533,7 +551,6 @@ class Button {
     
     if (buttonActive && activeButtonId == this.id) {
        for (Subbutton sb : neighbors) {
-         println(sb.c);
          sb.display(); 
        }
     }
@@ -560,7 +577,6 @@ class Subbutton {
     
     this.id = id;
     this.c = c;
-    println("id : " + id + ", c: " + Character.toString(c) + ", x,y,w,h: " + x + ", " + y + ", " + w + ", " + h);
   }
   
   void display() {
