@@ -7,10 +7,11 @@ import java.util.Map;
 import java.util.Set;
 import java.util.TreeSet;
 
-//int boardWidth  = 207; // 1" on LG phone LG
-//int boardHeight = 207; // 1" on LG phone
-int boardWidth  = 245; // 1" on LG phone MOTOROLA
-int boardHeight = 245; // 1" on LG phone
+int boardWidth  = 207; // 1" on LG phone LG
+int boardHeight = 207; // 1" on LG phone
+
+//int boardWidth  = 245; // 1" on LG phone MOTOROLA
+//int boardHeight = 245; // 1" on LG phone
 
 // All the phrases you could possibly want
 String[] phrases;
@@ -49,7 +50,7 @@ SetTrie trie;
 
 void setup() {
   fullScreen();
-  textFont(createFont("Arial", 14));
+  textFont(createFont("Arial", 16));
   rectMode(CENTER);
   
   // Load dictionary and phrases
@@ -156,14 +157,37 @@ void draw() {
 } // DRAW
 
 void mousePressed() {
+  // Time is about to start -- as long as they click outside the keyboard to start.
+  if (startTime == 0 && !didMouseClick(board.x, board.y, board.w, board.h)) {
+    userStarted = true;
+    nextTrial();
+  }
+  
+  if (didMouseClick(board.x, board.y, board.w, board.h)) {
+    if (!userDone && userStarted) {
+      
+    }
+  }
+  
+  // Did the mouse click the next button?
+  if (didMouseClick(3 * width / 4, 50, 200, 200)) {
+    // If yes, next trial
+    nextTrial();
+  }
   
 } // MOUSEPRESSED
 
 void mouseReleased() {
+  if (!didMouseClick(board.x, board.y, board.w, board.h)) {
+    return; 
+  }
   
 } // MOUSERELEASED
 
 void mouseDragged() {
+  if (!didMouseClick(board.x, board.y, board.w, board.h)) {
+    return; 
+  }
   
 } // MOUSEDRAGGED
 
@@ -279,12 +303,22 @@ Comparator<String> FREQUENCY = new Comparator<String>() {
   
 class Keyboard {
   float x, y, w, h;
+  Topbar top;
+  ArrayList<Button> keys;
   
   Keyboard(float inX, float inY, float inW, float inH) {
     x = inX;
     y = inY;
     w = inW;
     h = inH;
+    
+    top = new Topbar(0, 0, 0,0);
+    keys = new ArrayList<Button>();
+    String alphabet = "qwertyuiopasdfghjklzxcvbnm";
+    int i = 0;
+    for (char c : alphabet.toCharArray()) {
+      keys.add(new Button(i, c, 0, 0, 0, 0));
+    }
   }
   
   void display() {
@@ -297,15 +331,13 @@ class Keyboard {
 
 /**
  * ==================================================================================
- *   BUTTON IMPL
+ *   TOPBAR IMPL
  * ==================================================================================
  */
-  
-
-class Button {
+ 
+class Topbar {
   float x, y, w, h;
-  
-  Button(float inX, float inY, float inW, float inH) {
+  Topbar(float inX, float inY, float inW, float inH) {
     x = inX;
     y = inY;
     w = inW;
@@ -315,7 +347,106 @@ class Button {
   void display() {
     
   }
+} // TOPBAR
+
+/**
+ * ==================================================================================
+ *   SUGGESTIONS IMPL
+ * ==================================================================================
+ */
+ 
+class Suggestions {
+  float x, y, w, h;
+  Suggestions (float inX, float inY, float inW, float inH) {
+    x = inX;
+    y = inY;
+    w = inW;
+    h = inH;
+  }
+  
+  void display() {
+    
+  }
+} // SUGGESTIONS
+
+/**
+ * ==================================================================================
+ *   TOPBAR IMPL
+ * ==================================================================================
+ */
+ 
+class SpaceDelbar {
+  float x, y, w, h;
+  SpaceDelbar(float inX, float inY, float inW, float inH) {
+    x = inX;
+    y = inY;
+    w = inW;
+    h = inH;
+  }
+  
+  void display() {
+    
+  }
+} // TOPBAR
+
+/**
+ * ==================================================================================
+ *   BUTTON IMPL
+ * ==================================================================================
+ */
+  
+
+class Button {
+  float x, y, w, h;
+  int id;
+  char c;
+  ArrayList<Subbutton> neighbors;
+  
+  Button(int id, char c, float inX, float inY, float inW, float inH) {
+    x = inX;
+    y = inY;
+    w = inW;
+    h = inH;
+    
+    this.id = id;
+    this.c = c;
+  }
+  
+  void setNeighbors(ArrayList<Subbutton> neighbors) {
+    this.neighbors = neighbors; 
+  }
+  
+  void display() {
+    
+  }
 } // BUTTON
+
+/**
+ * ==================================================================================
+ *   BUTTON IMPL
+ * ==================================================================================
+ */
+  
+
+class Subbutton {
+  float x, y, w, h;
+  int id;
+  char c;
+  
+  Subbutton(int id, char c, float inX, float inY, float inW, float inH) {
+    x = inX;
+    y = inY;
+    w = inW;
+    h = inH;
+    
+    this.id = id;
+    this.c = c;
+  }
+  
+  void display() {
+    
+  }
+} // SUBBUTTON
 
 /**
  * ==================================================================================
