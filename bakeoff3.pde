@@ -108,11 +108,16 @@ void draw() {
   background(65);
   board.display();
   
+  fill(65);
+  noStroke();
+  rect((width / 2 - boardWidth / 2) / 2, height / 2, width / 2 - boardWidth / 2, boardWidth);
+  rect(width - (width - (width / 2 + boardWidth / 2)) / 2, height / 2, width / 2 - boardWidth / 2, boardWidth);
+  
   frameCnt++;
-  if (frameCnt > 32) {
+  if (frameCnt > 20) {
     frameCnt = 0; 
   }
-  if (frameCnt >= 16) {
+  if (frameCnt >= 10) {
     showCursor = true; 
   } else {
     showCursor = false;
@@ -150,6 +155,7 @@ void draw() {
     text("Target:   " + currentPhrase, 70, 100); //draw the target string
     text("Entered:  " + inputString.toString(), 70, 140); //draw what the user has entered thus far 
     
+    smallSuggestions = new ArrayList<String>();
     // Get suggestions for input of at least 3 characters
     if (currentWord.length() > 2) {
       // Get suggestions
@@ -158,7 +164,6 @@ void draw() {
       Collections.sort(suggestions, FREQUENCY);
       
       // Take the first three
-      smallSuggestions = new ArrayList<String>();
       for (int i = 0; i < 3; i++) {
         if (i > suggestions.size() - 1) break;
         smallSuggestions.add(suggestions.get(i));
@@ -537,6 +542,7 @@ class Suggestions {
     stroke(0);
     strokeWeight(1);
     rect(x, y, w, h);
+    
     
     for (SuggestTag t : tags ) {
       t.display(); 
