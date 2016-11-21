@@ -48,6 +48,9 @@ Keyboard board;
 Map<String, Long> wordCounts;
 SetTrie trie; 
 
+// Scaling stuff
+float zoom = 1;
+
 void setup() {
   fullScreen();
   textFont(createFont("Arial", 16));
@@ -165,7 +168,12 @@ void mousePressed() {
   
   if (didMouseClick(board.x, board.y, board.w, board.h)) {
     if (!userDone && userStarted) {
-      
+      for (Button b : board.keys) {
+        if (didMouseClick(b.x, b.y, b.w, b.h)) {
+          println(b.c);
+          break;
+        }
+      }
     }
   }
   
@@ -181,6 +189,7 @@ void mouseReleased() {
   if (!didMouseClick(board.x, board.y, board.w, board.h)) {
     return; 
   }
+  
   
 } // MOUSERELEASED
 
@@ -312,12 +321,89 @@ class Keyboard {
     w = inW;
     h = inH;
     
-    top = new Topbar(0, 0, 0,0);
+    top = new Topbar(x, y - h / 4, w, h / 2);
     keys = new ArrayList<Button>();
-    String alphabet = "qwertyuiopasdfghjklzxcvbnm";
-    int i = 0;
-    for (char c : alphabet.toCharArray()) {
-      keys.add(new Button(i, c, 0, 0, 0, 0));
+    String row1 = "qwertyuiop";
+    
+    float keyWidth = boardWidth / row1.length();
+    float keyHeight = boardWidth / 6;
+    
+    int i = row1.length() * -1 / 2; // -5 to 4
+    int nI = 0;
+    for (char c : row1.toCharArray()) {
+      Button b = new Button(i, c, x + (i * keyWidth) + keyWidth / 2, 
+                          y + keyHeight / 2, 
+                          keyWidth, keyHeight);
+                          
+      ArrayList<Subbutton> neighbors = new ArrayList<Subbutton>();
+      
+      if (nI == 0) {
+        neighbors.add(new Subbutton(nI, row1.charAt(nI), x, y, w, h));
+        neighbors.add(new Subbutton(nI, row1.charAt(nI + 1), x, y, w, h));
+      } else if (nI == row1.length() - 1) {
+        neighbors.add(new Subbutton(nI, row1.charAt(nI - 1), x, y, w, h));
+        neighbors.add(new Subbutton(nI, row1.charAt(nI), x, y, w, h));
+      } else {
+        neighbors.add(new Subbutton(nI, row1.charAt(nI - 1), x, y, w, h));
+        neighbors.add(new Subbutton(nI, row1.charAt(nI + 0), x, y, w, h));
+        neighbors.add(new Subbutton(nI, row1.charAt(nI + 1), x, y, w, h));
+      }
+      
+      b.setNeighbors(neighbors);
+      keys.add(b);
+      i++;
+      nI++;
+    }
+    
+    String row2 = "asdfghjkl"; // -4 to 4
+    i = row2.length() * -1 / 2;
+    nI = 0;
+    for (char c : row2.toCharArray()) {
+      Button b = new Button(i, c, x + (i * keyWidth), 
+                          y + keyHeight + keyHeight / 2, 
+                          keyWidth, keyHeight);
+                          
+      ArrayList<Subbutton> neighbors = new ArrayList<Subbutton>();
+      if (nI == 0) {
+        neighbors.add(new Subbutton(row1.length() + nI, row2.charAt(nI), x, y, w, h));
+        neighbors.add(new Subbutton(row1.length() + nI, row2.charAt(nI + 1), x, y, w, h));
+      } else if (nI == row2.length() - 1) {
+        neighbors.add(new Subbutton(row1.length() + nI, row2.charAt(nI - 1), x, y, w, h));
+        neighbors.add(new Subbutton(row1.length() + nI, row2.charAt(nI), x, y, w, h));
+      } else {
+        neighbors.add(new Subbutton(row1.length() + nI, row2.charAt(nI - 1), x, y, w, h));
+        neighbors.add(new Subbutton(row1.length() + nI, row2.charAt(nI + 0), x, y, w, h));
+        neighbors.add(new Subbutton(row1.length() + nI, row2.charAt(nI + 1), x, y, w, h));
+      }
+      b.setNeighbors(neighbors);
+      keys.add(b);
+      i++;
+      nI++;
+    }
+    
+    String row3 = "zxcvbnm"; // -3 to 3
+    i = row3.length() * -1 / 2;
+    nI = 0;
+    for (char c : row3.toCharArray()) {
+      Button b = new Button(i, c, 
+                          x + (i * keyWidth), 
+                          y + 2 * keyHeight + keyHeight / 2, 
+                          keyWidth, keyHeight); 
+      ArrayList<Subbutton> neighbors = new ArrayList<Subbutton>();
+      if (nI == 0) {
+        neighbors.add(new Subbutton(row1.length() + row2.length() + nI, row3.charAt(nI), x, y, w, h));
+        neighbors.add(new Subbutton(row1.length() + row2.length() + nI, row3.charAt(nI + 1), x, y, w, h));
+      } else if (nI == row3.length() - 1) {
+        neighbors.add(new Subbutton(row1.length() + row2.length() + nI, row3.charAt(nI - 1), x, y, w, h));
+        neighbors.add(new Subbutton(row1.length() + row2.length() + nI, row3.charAt(nI), x, y, w, h));
+      } else {
+        neighbors.add(new Subbutton(row1.length() + row2.length() + nI, row3.charAt(nI - 1), x, y, w, h));
+        neighbors.add(new Subbutton(row1.length() + row2.length() + nI, row3.charAt(nI + 0), x, y, w, h));
+        neighbors.add(new Subbutton(row1.length() + row2.length() + nI, row3.charAt(nI + 1), x, y, w, h));
+      }
+      b.setNeighbors(neighbors);
+      keys.add(b);                    
+      i++;
     }
   }
   
@@ -326,6 +412,12 @@ class Keyboard {
     stroke(0);
     strokeWeight(2);
     rect(x, y, w, h);
+    
+    top.display();
+    
+    for (Button b : keys) {
+      b.display(); 
+    }
   }
 } // KEYBOARD
 
@@ -337,15 +429,22 @@ class Keyboard {
  
 class Topbar {
   float x, y, w, h;
+  Suggestions sug;
+  SpaceDelbar sdb;
+  
   Topbar(float inX, float inY, float inW, float inH) {
     x = inX;
     y = inY;
     w = inW;
     h = inH;
+
+    sdb = new SpaceDelbar(x, y - h / 2 + h / 3, w, 2 * h / 3);
+    sug = new Suggestions(x, y + h / 2 - h / 6, w, h / 3);
   }
   
   void display() {
-    
+    sug.display();
+    sdb.display();
   }
 } // TOPBAR
 
@@ -365,13 +464,14 @@ class Suggestions {
   }
   
   void display() {
-    
+    fill(123);
+    rect(x, y, w, h);
   }
 } // SUGGESTIONS
 
 /**
  * ==================================================================================
- *   TOPBAR IMPL
+ *   SPACEDELBAR IMPL
  * ==================================================================================
  */
  
@@ -385,9 +485,18 @@ class SpaceDelbar {
   }
   
   void display() {
+    fill(24, 123, 200);
+    rect(x, y, w, h);
+  }
+  
+  void insertSpace() {
     
   }
-} // TOPBAR
+  
+  void deleteChar() {
+    
+  }
+} // SPACEDELBAR 
 
 /**
  * ==================================================================================
@@ -413,11 +522,22 @@ class Button {
   }
   
   void setNeighbors(ArrayList<Subbutton> neighbors) {
+    println(c);
     this.neighbors = neighbors; 
+    for (Subbutton b : neighbors) {
+      println(b.c); 
+    }
+    println("----");
   }
   
   void display() {
-    
+    fill(255);
+    stroke(0);
+    strokeWeight(1);
+    rect(x, y, w, h);
+    fill(0);
+    textAlign(CENTER);
+    text(Character.toString(c).toUpperCase(), x, y);
   }
 } // BUTTON
 
