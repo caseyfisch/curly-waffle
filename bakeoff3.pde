@@ -132,13 +132,14 @@ void draw() {
       // Sort by word count, descending
       Collections.sort(suggestions, FREQUENCY);
       
+      // Take the first three
       List<String> smallSuggestions = new ArrayList<String>();
       for (int i = 0; i < 3; i++) {
         if (i > suggestions.size() - 1) break;
-        
         smallSuggestions.add(suggestions.get(i));
       }
       
+      // Print for now, can remove later
       for (String w : smallSuggestions) {
         println(w); 
       }
@@ -147,7 +148,7 @@ void draw() {
     }
     
     fill(123, 123, 250);
-    rect(800, 00, 200, 200); //drag next button
+    rect(800, 00, 200, 200); //draw next button
     fill(255);
     text("NEXT > ", 3 * width / 4, 50); //draw next label
     rectMode(CENTER);
