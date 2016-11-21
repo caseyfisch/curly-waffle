@@ -156,8 +156,13 @@ void draw() {
     text("Phrase " + (currTrialNum+1) + " of " + totalTrialNum, 70, 50); //draw the trial count
     
     fill(255);
-    text("Target:   " + currentPhrase, 70, 100); //draw the target string
-    text("Entered:  " + inputString.toString(), 70, 140); //draw what the user has entered thus far 
+    textAlign(RIGHT);
+    text("Target: ", 70, 100); //draw the target string
+    text("Entered: ", 70, 140); //draw what the user has entered thus far 
+    
+    textAlign(LEFT);
+    text(currentPhrase, 70, 100);
+    text(inputString.toString(), 70, 140);
     
     smallSuggestions = new ArrayList<String>();
     // Get suggestions for input of at least 3 characters
@@ -172,8 +177,10 @@ void draw() {
         if (i > suggestions.size() - 1) break;
         smallSuggestions.add(suggestions.get(i));
       }
-      
-      text("Suggestions:  " + smallSuggestions.toString(), 70, 190); 
+    } else if (currentWord.length() == 0) {
+      smallSuggestions.add("a");
+      smallSuggestions.add("the");
+      smallSuggestions.add("of");
     }
 
     board.top.sug.updateSuggestions();
@@ -351,9 +358,9 @@ void nextTrial() {
     System.out.println("Time taken on this trial: " + ((millis() - lastTime) / 1000) + " seconds"); //output
     System.out.println("Time taken since beginning: " + ((millis() - startTime) / 1000) + " seconds"); //output
     System.out.println("========================================================================");
-    lettersExpectedTotal+=currentPhrase.length();
-    lettersEnteredTotal+=currentTyped.length();
-    errorsTotal+=computeLevenshteinDistance(currentTyped.trim(), currentPhrase.trim());
+    lettersExpectedTotal += currentPhrase.length();
+    lettersEnteredTotal += currentTyped.length();
+    errorsTotal += computeLevenshteinDistance(currentTyped.trim(), currentPhrase.trim());
   }
 
   // probably shouldn't need to modify any of this output / penalty code.
@@ -768,7 +775,7 @@ class Subbutton {
   void display() {
     noStroke();
     if (didMouseClick(x, y, w, h)) {
-      fill(127);
+      fill(155, 193, 255);
     } else {
       fill(200);
     }
