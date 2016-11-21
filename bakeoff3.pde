@@ -227,17 +227,11 @@ void mouseReleased() {
     if (mouseX + 20 <= startMX) {
       // Right to left 
       // delete
-      if (inputString.length() > 0) {
-        inputString.deleteCharAt(inputString.length() - 1);
-        if (currentWord.length() > 0) {
-          currentWord.deleteCharAt(currentWord.length() - 1); 
-        }
-      } 
+      board.top.sdb.deleteChar();
     } else if (startMX + 20 <= mouseX) {
       // Left to right
       // space
-      inputString.append(" ");
-      currentWord = new StringBuilder();
+      board.top.sdb.insertSpace();
     }
     swipeActive = false;
   }
@@ -512,11 +506,17 @@ class SpaceDelbar {
   }
   
   void insertSpace() {
-    
+    inputString.append(" ");
+    currentWord = new StringBuilder();
   }
   
   void deleteChar() {
-    
+    if (inputString.length() > 0) {
+      inputString.deleteCharAt(inputString.length() - 1);
+      if (currentWord.length() > 0) {
+        currentWord.deleteCharAt(currentWord.length() - 1); 
+      }
+    } 
   }
 } // SPACEDELBAR 
 
