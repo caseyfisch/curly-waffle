@@ -104,7 +104,7 @@ void setup() {
   inputString = new StringBuilder();
   currentWord = new StringBuilder();
   
-  prefixes = new Stack<String>();
+  //prefixes = new Stack<String>();
   
   
 } // SETUP
@@ -162,14 +162,15 @@ void draw() {
     
     fill(255);
     textAlign(RIGHT);
-    text("Target: ", 70, 100); //draw the target string
-    text("Entered: ", 70, 140); //draw what the user has entered thus far 
+    text("Target: ", 70, 75 + 100); //draw the target string
+    text("Entered: ", 70, 75 + 140); //draw what the user has entered thus far 
     
     textAlign(LEFT);
-    text(currentPhrase, 70, 100);
-    text(inputString.toString(), 70, 140);
+    text(currentPhrase, 70, 75 + 100);
+    text(inputString.toString(), 70, 75 + 140);
     
     smallSuggestions = new ArrayList<String>();
+    
     // Get suggestions for input of at least 3 characters
     if (currentWord.length() > 2) {
       // Get suggestions
@@ -263,6 +264,8 @@ void mouseReleased() {
       if (didMouseClick(sb.x, sb.y, sb.w, sb.h)) {
         inputString.append(sb.c);
         currentWord.append(sb.c);
+        //prefixes.push(currentWord.toString());
+        //println(prefixes);
         break; 
       }
     } 
@@ -290,8 +293,6 @@ void mouseReleased() {
         // probably a click
         
         for (SuggestTag t : board.top.sug.tags) {
-          println("MX: " + mouseX);
-          println("T.x: " + (board.top.sug.x - board.top.sug.w / 2 + t.x + t.widthEst / 2));
           if (didMouseClick(board.top.sug.x - board.top.sug.w / 2 + t.x + t.widthEst / 2, t.y, t.widthEst, t.h)) {
             // Make sure this suggestion makes it into the input and add a space
 
@@ -680,6 +681,13 @@ class SpaceDelbar {
       inputString.deleteCharAt(inputString.length() - 1);
       if (currentWord.length() > 0) {
         currentWord.deleteCharAt(currentWord.length() - 1); 
+        currentWord = new StringBuilder();
+        //if (!prefixes.empty()) {
+        //  prefixes.pop();
+        //} 
+        //if (!prefixes.empty()) {
+        //  currentWord.append(prefixes.pop());
+        //}
       }
     } 
   }
@@ -740,8 +748,6 @@ class Button {
     noStroke();
     noFill();
     
-    
-    
     if (buttonActive && activeButtonId == this.id) {
        for (Subbutton sb : neighbors) {
          sb.display(); 
@@ -763,7 +769,6 @@ class Button {
  *   BUTTON IMPL
  * ==================================================================================
  */
-  
 
 class Subbutton {
   float x, y, w, h;
